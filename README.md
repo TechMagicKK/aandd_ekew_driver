@@ -8,7 +8,7 @@ pip install pyserial
 ## rs-232c device setting
 ```.sh
 cd ~/dev_ws/aandd_ekew_driver/launch
-edit bringup.launch.py for change params (device, rate)
+edit bringup.launch.py for change params (device, baudrate, rate)
 ```
 
 ## build
@@ -24,5 +24,5 @@ ros2 launch aandd_ekew_driver bringup.launch.py
 ```
 ## start test
 ```.sh
-ros2 run aandd_ekew_driver aandd_ekew_driver_test
+ros2 run aandd_ekew_driver aandd_ekew_test
 ```

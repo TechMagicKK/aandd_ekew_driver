@@ -16,16 +16,16 @@ from weight_scale_interfaces.action import GetWeight
 
 class WeightAndScaleTestNode(Node):
     def __init__(self):
-        super().__init__('aandd_ekew_driver_test')
-        self._weight_sub = self.create_subscription(Weight, '/aandd_ekew_driver_node/weight', self.weight_callback, 10)
+        super().__init__('aandd_ekew_test')
+        self._weight_sub = self.create_subscription(Weight, '/aandd_ekew_node/weight', self.weight_callback, 10)
         self._set_zero_goal_handle = None
-        self._set_zero_action = ActionClient(self, SetZero, '/aandd_ekew_driver_node/set_zero')
+        self._set_zero_action = ActionClient(self, SetZero, '/aandd_ekew_node/set_zero')
         self._get_weight_goal_handle = None
-        self._get_weight_action = ActionClient(self, GetWeight, '/aandd_ekew_driver_node/get_weight')
+        self._get_weight_action = ActionClient(self, GetWeight, '/aandd_ekew_node/get_weight')
 
     # ----------------------------------------------------------------------------------------------------------------------------
     async def weight_callback(self, msg):
-        self.get_logger().info(f'published_weight({msg.stamp.sec}.{msg.stamp.nanosec:*<9}, {msg.stable}, {msg.weight}[{msg.unit}])')
+        self.get_logger().info(f'published_weight({msg.stamp.sec}.{msg.stamp.nanosec:*<9}, {msg.stable}, {msg.weight:.2f}[{msg.unit}])')
 
     # ----------------------------------------------------------------------------------------------------------------------------
     def cancel_set_zero(self):

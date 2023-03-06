@@ -115,8 +115,8 @@ class EKEWTest(object):
                 msg.overload = False
                 line = self._weight_str
                 m = re.search(r'(ST|QT|US|OL),([ 0-9\.\+\-]+)([ a-zA-Z\%]+)', line)
-                msg.weight = float(m.group(3)) + random.random()
-                msg.unit = m.group(4).lstrip()
+                msg.weight = float(m.group(2)) + random.random()
+                msg.unit = m.group(3).lstrip()
             return msg
         except Exception as e:
             raise EKEWError(f'get_weight: {e}')
@@ -129,7 +129,7 @@ class WeightAndScaleNode(Node):
         self._weight_publish_timer: Optional[Timer] = None
         self._set_zero_action: Optional[ActionServer] = None
         self._get_weight_action: Optional[ActionServer] = None
-        super().__init__('aandd_ekew_driver_node', **kwargs)
+        super().__init__('aandd_ekew_node', **kwargs)
 
     def setup_params(self):
         self.declare_parameter('device', '/dev/ttyUSB0')

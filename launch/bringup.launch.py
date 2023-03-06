@@ -22,8 +22,8 @@ def generate_launch_description():
     rate = launch.substitutions.LaunchConfiguration('rate', default=5.0)
 
     node = launch_ros.actions.LifecycleNode(
-        name='aandd_ekew_driver_node', namespace='',
-        package='aandd_ekew_driver', executable='aandd_ekew_driver_node', output='screen',
+        name='aandd_ekew_node', namespace='',
+        package='aandd_ekew_driver', executable='aandd_ekew_node', output='screen',
         parameters=[{'device':device, 'baudrate':baudrate, 'connect_timeout':connect_timeout, 'rate':rate}],
     )
 

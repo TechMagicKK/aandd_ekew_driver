@@ -23,8 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'aandd_ekew_driver_node = aandd_ekew_driver.aandd_ekew_driver_node:main',
-            'aandd_ekew_driver_test = aandd_ekew_driver.aandd_ekew_driver_test:main',
+            'aandd_ekew_node = aandd_ekew_driver.aandd_ekew_node:main',
+            'aandd_ekew_test = aandd_ekew_driver.aandd_ekew_test:main',
         ],
     },
 )
