@@ -136,14 +136,17 @@ class WeightAndScaleNode(Node):
         self.declare_parameter('baudrate', 9600)
         self.declare_parameter('connect_timeout', 1.0)
         self.declare_parameter('rate', 5.0)
+        self.declare_parameter('use_fake', False)
         self._device = self.get_parameter('device').value
         self._baudrate = self.get_parameter('baudrate').value
         self._connect_timeout = self.get_parameter('connect_timeout').value
         self._rate = self.get_parameter('rate').value
+        self._use_fake = self.get_parameter('use_fake').value
         self.get_logger().info(f'params: device={self._device}')
         self.get_logger().info(f'params: baudrate={self._baudrate}[bps]')
         self.get_logger().info(f'params: connect_timeout={self._connect_timeout}')
         self.get_logger().info(f'params: rate={self._rate}[Hz]')
+        self.get_logger().info(f'params: use_fake={self._use_fake}')
 
     async def publish_weight(self):
         try:
@@ -165,8 +168,10 @@ class WeightAndScaleNode(Node):
     #-----------------------------------------------------------------------------
     def on_configure(self, state: State) -> TransitionCallbackReturn:
         self.get_logger().info('lifecycle:on_configure()')
-        #self._ekew = EKEW(self)
-        self._ekew = EKEWTest(self)
+        if self._use_fake:
+            self._ekew = EKEWTest(self)
+        else:
+            self._ekew = EKEW(self)
         self._weight_publisher = self.create_lifecycle_publisher(Weight, "~/weight", 10);
         self.get_logger().info(f'create_timer({1.0/self._rate:.2f})')
         self._weight_publish_timer = self.create_timer(1.0/self._rate, self.publish_weight)
