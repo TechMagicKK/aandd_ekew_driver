@@ -22,6 +22,12 @@ colcon build --cmake-clean-first --symlink-install --packages-select aandd_ekew_
 ```.sh
 ros2 launch aandd_ekew_driver bringup.launch.py
 ```
+
+## start node with fake device for test
+```.sh
+ros2 launch aandd_ekew_driver bringup.launch.py use_fake:=True
+```
+
 ## start test
 ```.sh
 ros2 run aandd_ekew_driver aandd_ekew_test
