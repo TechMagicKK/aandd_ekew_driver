@@ -18,7 +18,7 @@ def generate_launch_description():
 
     device = launch.substitutions.LaunchConfiguration('device', default='/dev/ttyUSB0')
     baudrate = launch.substitutions.LaunchConfiguration('baudrate', default=9600)
-    connect_timeout = launch.substitutions.LaunchConfiguration('connect_timeout', default=10.0)
+    connect_timeout = launch.substitutions.LaunchConfiguration('connect_timeout', default=1.0)
     rate = launch.substitutions.LaunchConfiguration('rate', default=5.0)
     use_fake = launch.substitutions.LaunchConfiguration('use_fake', default=False)
 

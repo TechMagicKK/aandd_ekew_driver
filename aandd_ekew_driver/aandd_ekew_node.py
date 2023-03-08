@@ -34,6 +34,9 @@ class EKEW(object):
         self._lock = threading.Lock()
 
     def connect(self, device, baudrate, timeout):
+        self._device = device
+        self._baudrate = baudrate
+        self._timeout = timeout
         self.disconnect()
         try:
             with self._lock:
@@ -51,45 +54,48 @@ class EKEW(object):
 
     def set_zero(self):
         try:
-            with self._lock:
-                command = 'Z'
-                self._client.write(f'{command}\r\n'.encode('utf-8'))
-                line = self._client.readline().strip().decode('utf-8')
-                if line is not command:
-                    raise Exception
+            self._lock.acquire()
+            self._client.write(b'Z\r\n')
+            line = self._client.readline()
+            self._lock.release()
+            if line is None:
+                raise Exception
         except Exception as e:
-            raise EKEWError(f'set_zero: {e}')
+            raise EKEWError(f'set_zero: communication error')
 
     def get_weight(self) -> Weight():
+        line = None
         try:
             msg = Weight()
             msg.stable = False
             msg.overload = False
             msg.weight = 0.0
             msg.unit = 'kg'
-            with self._lock:
-                msg.stamp = self._node.get_clock().now().to_msg()
-                command = 'Q'
-                self._client.write(f'{command}\r\n'.encode('utf-8'))
-                line = self._client.readline().strip().decode('utf-8')
-                m = re.search(r'(ST|QT|US|OL),([ 0-9\.\+\-]+)([ a-zA-Z\%]+)', line)
-                if m.group(1) == 'OL':
-                    # OverLoad
-                    msg.overload = True
-                    msg.unit = m.group(3).lstrip()
-                elif (m.group(1) == 'ST') or (m.group(1) == 'QT'):
-                    # STable
-                    msg.stable = True
-                    msg.weight = float(m.group(2))
-                    msg.unit = m.group(3).lstrip()
-                else:
-                    # must be US(UnStable)
-                    msg.stable = False
-                    msg.weight = float(m.group(2))
-                    msg.unit = m.group(3).lstrip()
-                return msg
+            msg.stamp = self._node.get_clock().now().to_msg()
+            self._lock.acquire()
+            self._client.write(b'Q\r\n')
+            line = self._client.readline().strip().decode('utf-8')
+            self._lock.release()
+            if line is None:
+                raise Exception
+            m = re.search(r'(ST|QT|US|OL),([ 0-9\.\+\-]+)([ a-zA-Z\%]+)', line)
+            if m.group(1) == 'OL':
+                # OverLoad
+                msg.overload = True
+                msg.unit = m.group(3).lstrip()
+            elif (m.group(1) == 'ST') or (m.group(1) == 'QT'):
+                # STable
+                msg.stable = True
+                msg.weight = float(m.group(2))
+                msg.unit = m.group(3).lstrip()
+            else:
+                # must be US(UnStable)
+                msg.stable = False
+                msg.weight = float(m.group(2))
+                msg.unit = m.group(3).lstrip()
+            return msg
         except Exception as e:
-            raise EKEWError(f'get_weight: {e}')
+            raise EKEWError(f'get_weight: communication error')
 
 class EKEWTest(object):
     def __init__(self, node):
@@ -152,7 +158,7 @@ class WeightAndScaleNode(Node):
         try:
             if (self._weight_publisher is not None) and self._weight_publisher.is_activated:
                 msg = self._ekew.get_weight()
-                self.get_logger().info(f'publish_weight({msg.stamp.sec}.{msg.stamp.nanosec:*<9}, {msg.stable}, {msg.overload}, {msg.weight:.2f}[{msg.unit}])')
+                self.get_logger().info(f'publish_weight({msg.stamp.sec}.{msg.stamp.nanosec:09}, {msg.stable}, {msg.overload}, {msg.weight:.2f}[{msg.unit}])')
                 self._weight_publisher.publish(msg)
                 rate = self.get_parameter('rate').value
                 if rate < 0.01:
@@ -163,7 +169,8 @@ class WeightAndScaleNode(Node):
                     self._rate = rate
                     self._weight_publish_timer = self.create_timer(1.0/self._rate, self.publish_weight)
         except Exception as e:
-            raise EKEWError(f'publish_weight: {e}')
+            #raise EKEWError(f'publish_weight: {e}')
+            self.get_logger().info(f'publish_weight: {e}')
 
     #-----------------------------------------------------------------------------
     def on_configure(self, state: State) -> TransitionCallbackReturn:
@@ -291,13 +298,13 @@ class WeightAndScaleNode(Node):
         except EKEWError as e:
             result.success = False
             result.weight = weight
-            result.message = 'modbus communication error'
+            result.message = 'rs232c communication error'
             goal_handle.succeed()
             return result
 
     #-----------------------------------------------------------------------------
     async def get_weight_cancel_callback(self, goal_handle):
-        self.get_logger().info('cancel set_zero()')
+        self.get_logger().info('cancel get_weight()')
         return CancelResponse.ACCEPT
 
     async def get_weight_execute_callback(self, goal_handle):
@@ -337,13 +344,14 @@ class WeightAndScaleNode(Node):
         except EKEWError as e:
             result.success = False
             result.weight = weight
-            result.message = 'modbus communication error'
+            result.message = 'rs232c communication error'
             goal_handle.succeed()
             return result
 
 def main(args=None):
     rclpy.init(args=args)
     executor = rclpy.executors.MultiThreadedExecutor()
+    #executor = rclpy.executors.SingleThreadedExecutor()
     node = WeightAndScaleNode()
     executor.add_node(node)
     node.setup_params()
