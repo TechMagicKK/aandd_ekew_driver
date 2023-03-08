@@ -57,6 +57,7 @@ class EKEW(object):
             self._lock.acquire()
             self._client.write(b'Z\r\n')
             line = self._client.readline()
+            time.sleep(1.0)
             self._lock.release()
             if line is None:
                 raise Exception
