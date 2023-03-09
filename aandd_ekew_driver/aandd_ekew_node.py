@@ -57,9 +57,9 @@ class EKEW(object):
             with self._lock:
                 self._client.write(b'Z\r\n')
                 line = self._client.readline()
+                if line is None:
+                    raise Exception
                 time.sleep(1.0)
-            if line is None:
-                raise Exception
         except Exception as e:
             raise EKEWError(f'set_zero: communication error')
 
@@ -137,6 +137,18 @@ class WeightAndScaleNode(Node):
         self._get_weight_action: Optional[ActionServer] = None
         super().__init__('aandd_ekew_node', **kwargs)
 
+    def params_changed(self, params):
+        for param in params:
+            if param.name == 'rate':
+                rate = param.value
+                if rate < 0.001:
+                    rate = 0.001
+                if (self._weight_publish_timer is not None) and (rate != self._rate):
+                    self.get_logger().info(f'change rate param from {self._rate:.2f}[Hz] to {rate:.2f}[Hz]')
+                    self.destroy_timer(self._weight_publish_timer)
+                    self._rate = rate
+                    self._weight_publish_timer = self.create_timer(1.0/self._rate, self.publish_weight)
+            
     def setup_params(self):
         self.declare_parameter('device', '/dev/ttyUSB0')
         self.declare_parameter('baudrate', 9600)
@@ -153,6 +165,7 @@ class WeightAndScaleNode(Node):
         self.get_logger().info(f'params: connect_timeout={self._connect_timeout}')
         self.get_logger().info(f'params: rate={self._rate}[Hz]')
         self.get_logger().info(f'params: use_fake={self._use_fake}')
+        self.add_post_set_parameters_callback(self.params_changed)
 
     async def publish_weight(self):
         try:
@@ -160,14 +173,6 @@ class WeightAndScaleNode(Node):
                 msg = self._ekew.get_weight()
                 self.get_logger().info(f'publish_weight({msg.stamp.sec}.{msg.stamp.nanosec:09}, {msg.stable}, {msg.overload}, {msg.weight:.2f}[{msg.unit}])')
                 self._weight_publisher.publish(msg)
-                rate = self.get_parameter('rate').value
-                if rate < 0.01:
-                    rate = 0.01
-                if (self._weight_publish_timer is not None) and (rate != self._rate):
-                    self.get_logger().info(f'change rate param from {self._rate:.2f}[Hz] to {rate:.2f}[Hz]')
-                    self.destroy_timer(self._weight_publish_timer)
-                    self._rate = rate
-                    self._weight_publish_timer = self.create_timer(1.0/self._rate, self.publish_weight)
         except Exception as e:
             self.get_logger().info(f'publish_weight: {e}')
 
