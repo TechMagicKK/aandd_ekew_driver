@@ -54,11 +54,10 @@ class EKEW(object):
 
     def set_zero(self):
         try:
-            self._lock.acquire()
-            self._client.write(b'Z\r\n')
-            line = self._client.readline()
-            time.sleep(1.0)
-            self._lock.release()
+            with self._lock:
+                self._client.write(b'Z\r\n')
+                line = self._client.readline()
+                time.sleep(1.0)
             if line is None:
                 raise Exception
         except Exception as e:
@@ -73,10 +72,9 @@ class EKEW(object):
             msg.weight = 0.0
             msg.unit = 'kg'
             msg.stamp = self._node.get_clock().now().to_msg()
-            self._lock.acquire()
-            self._client.write(b'Q\r\n')
-            line = self._client.readline().strip().decode('utf-8')
-            self._lock.release()
+            with self._lock:
+                self._client.write(b'Q\r\n')
+                line = self._client.readline().strip().decode('utf-8')
             if line is None:
                 raise Exception
             m = re.search(r'(ST|QT|US|OL),([ 0-9\.\+\-]+)([ a-zA-Z\%]+)', line)
@@ -111,19 +109,20 @@ class EKEWTest(object):
         pass
 
     def set_zero(self):
-        self._weight_str = 'ST,+00000.00  g'
+        with self._lock:
+            self._weight_str = 'ST,+00000.00  g'
 
     def get_weight(self) -> Weight():
         try:
             msg = Weight()
+            msg.stamp = self._node.get_clock().now().to_msg()
+            msg.stable = True if random.random() < 0.1 else False
+            msg.overload = False
             with self._lock:
-                msg.stamp = self._node.get_clock().now().to_msg()
-                msg.stable = True if random.random() < 0.1 else False
-                msg.overload = False
                 line = self._weight_str
-                m = re.search(r'(ST|QT|US|OL),([ 0-9\.\+\-]+)([ a-zA-Z\%]+)', line)
-                msg.weight = float(m.group(2)) + random.random()
-                msg.unit = m.group(3).lstrip()
+            m = re.search(r'(ST|QT|US|OL),([ 0-9\.\+\-]+)([ a-zA-Z\%]+)', line)
+            msg.weight = float(m.group(2)) + random.random()
+            msg.unit = m.group(3).lstrip()
             return msg
         except Exception as e:
             raise EKEWError(f'get_weight: {e}')
@@ -170,7 +169,6 @@ class WeightAndScaleNode(Node):
                     self._rate = rate
                     self._weight_publish_timer = self.create_timer(1.0/self._rate, self.publish_weight)
         except Exception as e:
-            #raise EKEWError(f'publish_weight: {e}')
             self.get_logger().info(f'publish_weight: {e}')
 
     #-----------------------------------------------------------------------------
@@ -294,7 +292,6 @@ class WeightAndScaleNode(Node):
                     self.get_logger().info('set_zero: feedback')
                     feedback.weight = weight
                     goal_handle.publish_feedback(feedback)
-                    #asyncio.sleep(0.1)
                     time.sleep(0.1)
         except EKEWError as e:
             result.success = False
@@ -340,7 +337,6 @@ class WeightAndScaleNode(Node):
                 else:
                     feedback.weight = weight
                     goal_handle.publish_feedback(feedback)
-                    #asyncio.sleep(0.1)
                     time.sleep(0.1)
         except EKEWError as e:
             result.success = False

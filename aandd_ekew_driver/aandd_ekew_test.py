@@ -1,19 +1,11 @@
-import signal
 import time
-import threading
-import asyncio
 import rclpy
 from rclpy.node import Node
-from rclpy.signals import SignalHandlerOptions 
 from rclpy.action import ActionClient
-from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
-from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
-
+from rclpy.executors import MultiThreadedExecutor
 from action_msgs.msg import GoalStatus
-
 from weight_scale_interfaces.msg import Weight
-from weight_scale_interfaces.action import SetZero
-from weight_scale_interfaces.action import GetWeight
+from weight_scale_interfaces.action import SetZero, GetWeight
 
 class WeightAndScaleTestNode(Node):
     def __init__(self):
@@ -94,16 +86,15 @@ class WeightAndScaleTestNode(Node):
         return result.result
 
 # ----------------------------------------------------------------------------------------------------------------------------
-def time_sleep(node, sec):
-    timeout = node.get_clock().now() + rclpy.duration.Duration(seconds=sec)
-    while node.get_clock().now() < timeout:
-        rclpy.spin_once(node, timeout_sec=0.01)
+def spin_sleep(executor, sec):
+    future = executor._executor.submit(lambda: time.sleep(sec))
+    executor.spin_until_future_complete(future)
 
 def main(args=None):
-    rclpy.init(args=args, signal_handler_options=SignalHandlerOptions.NO)
+    rclpy.init(args=args)
+    executor = rclpy.executors.MultiThreadedExecutor()
     node = WeightAndScaleTestNode()
-    thread = threading.Thread(target=rclpy.spin, args=(node,), daemon=True)
-    thread.start()
+    executor.add_node(node)
     try:
         res = node.set_zero(timeout_sec=1.0)
         node.get_logger().info(f'set_zero: success={res.success}, message={res.message}')
@@ -111,12 +102,9 @@ def main(args=None):
             res = node.get_weight(timeout_sec=1.0)
             msg = res.weight
             node.get_logger().info(f'get_weight: {msg.stamp.sec}.{msg.stamp.nanosec:09}, {msg.stable}, {msg.overload}, {msg.weight:.2f}[{msg.unit}], {res.success}, {res.message}')
-            #time.sleep(5)
-            time_sleep(node, 1)
-    except Exception as e:
-        node.get_logger().info(f'exception: {e}')
-        rclpy.shutdown()
-        thread.join()
+            spin_sleep(executor, 1)
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
+        node.destroy_node()
 
 if __name__ == '__main__':
     main()
