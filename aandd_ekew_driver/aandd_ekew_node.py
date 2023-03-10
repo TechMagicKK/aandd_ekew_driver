@@ -143,11 +143,12 @@ class WeightAndScaleNode(Node):
                 rate = param.value
                 if rate < 0.001:
                     rate = 0.001
-                if (self._weight_publish_timer is not None) and (rate != self._rate):
+                if rate != self._rate:
                     self.get_logger().info(f'change rate param from {self._rate:.2f}[Hz] to {rate:.2f}[Hz]')
-                    self.destroy_timer(self._weight_publish_timer)
                     self._rate = rate
-                    self._weight_publish_timer = self.create_timer(1.0/self._rate, self.publish_weight)
+                    if self._weight_publish_timer is not None:
+                        self.destroy_timer(self._weight_publish_timer)
+                        self._weight_publish_timer = self.create_timer(1.0/self._rate, self.publish_weight)
             
     def setup_params(self):
         self.declare_parameter('device', '/dev/ttyUSB0')
