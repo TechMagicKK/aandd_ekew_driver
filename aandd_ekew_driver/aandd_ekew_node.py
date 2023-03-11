@@ -44,7 +44,6 @@ class EKEWNode(WeightScaleNode):
             super().disconnect()
             return
         if self._client is not None:
-            self.get_logger().info('disconnect()')
             self._client.close()
             self._client = None
         return True
