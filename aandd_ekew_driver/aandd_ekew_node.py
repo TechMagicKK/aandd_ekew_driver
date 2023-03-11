@@ -1,7 +1,5 @@
 import time
 import re
-import threading
-import random
 from serial import Serial
 from typing import Optional
 
@@ -30,7 +28,7 @@ class EKEWNode(WeightScaleNode):
 
     def connect(self):
         if self._use_fake:
-            super().connect(port, unit, baudrate, timeout)
+            super().connect()
             return
         try:
             self.disconnect()
@@ -46,7 +44,6 @@ class EKEWNode(WeightScaleNode):
         if self._client is not None:
             self._client.close()
             self._client = None
-        return True
 
     def set_zero(self):
         if self._use_fake:
