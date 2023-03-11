@@ -47,5 +47,5 @@ ros2 param set /aandd_ekew_node rate 1.2
 
 ## run test
 ```.sh
-ros2 run weight_scale_driver weight_scale_test --ros-args -p device_node:=/aandd_ekew_node
+ros2 run weight_scale_driver weight_scale_test --ros-args -p device_node:=/aandd_ekew_node -p timeout_sec:=2.0
 ```

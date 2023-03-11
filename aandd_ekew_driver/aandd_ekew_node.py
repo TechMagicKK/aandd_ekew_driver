@@ -12,8 +12,8 @@ from weight_scale_driver.weight_scale_node import WeightScaleNode, WeightScaleEr
 
 #---------------------------------------------------------------------------------------
 class EKEWNode(WeightScaleNode):
-    def __init__(self, name, **kwargs):
-        super().__init__(name, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__('aandd_ekew_node', **kwargs)
         self._client: Optional[Serial] = None
         self.declare_parameter('port', '/dev/ttyUSB0')
         self.declare_parameter('baudrate', 9600)
@@ -100,7 +100,7 @@ def main(args=None):
     try:
         rclpy.init(args=args)
         executor = rclpy.executors.MultiThreadedExecutor()
-        node = EKEWNode('aandd_ekew_node')
+        node = EKEWNode()
         executor.add_node(node)
         executor.spin()
     except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
