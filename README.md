@@ -20,7 +20,7 @@ colcon build --cmake-clean-first --symlink-install --packages-select weight_scal
 ## rs-232c device setting
 ```.sh
 cd ~/dev_ws/aandd_ekew_driver/launch
-edit bringup.launch.py for change params (device, baudrate, rate)
+edit bringup.launch.py for change params (port, baudrate, rate)
 ```
 
 ## build
