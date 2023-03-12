@@ -16,7 +16,7 @@ import lifecycle_msgs.msg
 def generate_launch_description():
     ld = launch.LaunchDescription()
 
-    device = launch.substitutions.LaunchConfiguration('device', default='/dev/ttyUSB0')
+    port = launch.substitutions.LaunchConfiguration('port', default='/dev/ttyUSB0')
     baudrate = launch.substitutions.LaunchConfiguration('baudrate', default=9600)
     connect_timeout = launch.substitutions.LaunchConfiguration('connect_timeout', default=1.0)
     rate = launch.substitutions.LaunchConfiguration('rate', default=5.0)
@@ -25,7 +25,7 @@ def generate_launch_description():
     node = launch_ros.actions.LifecycleNode(
         name='aandd_ekew_node', namespace='',
         package='aandd_ekew_driver', executable='aandd_ekew_node', output='screen',
-        parameters=[{'device':device, 'baudrate':baudrate, 'connect_timeout':connect_timeout, 'rate':rate, 'use_fake':use_fake}],
+        parameters=[{'port':port, 'baudrate':baudrate, 'connect_timeout':connect_timeout, 'rate':rate, 'use_fake':use_fake}],
     )
 
     to_inactive = launch.actions.EmitEvent(
