@@ -5,6 +5,7 @@
   <version>0.0.1</version>
   <description>aandd ek/ew series driver python package</description>
   <maintainer email="lin.jiaqing@techmagic.co.jp">Jiaqing Lin</maintainer>
+  <author email="koki.balian@gmail.com">koki-ogura</author>
   <license>Apache-2.0</license>
 
   <depend>rclpy</depend>

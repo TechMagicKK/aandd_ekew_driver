@@ -18,6 +18,8 @@ setup(
     zip_safe=True,
     maintainer='Jiaqing Lin',
     maintainer_email='lin.jiaqing@techmagic.co.jp',
+    author='koki-ogura',
+    author_email='koki.balian@gmail.com',
     description='aandd_ekew_driver_py',
     license='Apache-2.0',
     tests_require=['pytest'],
