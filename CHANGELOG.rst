@@ -2,8 +2,8 @@
 Changelog for package aandd_ekew_driver_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2023-09-19)
+------------------
 * Added author info
 * Contributors: Jiaqing Lin
 

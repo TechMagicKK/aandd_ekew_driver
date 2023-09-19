@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>aandd_ekew_driver_py</name>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <description>aandd ek/ew series driver python package</description>
   <maintainer email="lin.jiaqing@techmagic.co.jp">Jiaqing Lin</maintainer>
   <author email="koki.balian@gmail.com">koki-ogura</author>
