@@ -6,7 +6,7 @@ from typing import Optional
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
 from weight_scale_interfaces.msg import Weight
-from weight_scale_driver.weight_scale_node import WeightScaleNode, WeightScaleError
+from aandd_ekew_driver_py.weight_scale_node import WeightScaleNode, WeightScaleError
 
 #---------------------------------------------------------------------------------------
 class EKEWNode(WeightScaleNode):

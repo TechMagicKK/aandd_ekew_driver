@@ -24,7 +24,7 @@ def generate_launch_description():
 
     node = launch_ros.actions.LifecycleNode(
         name='aandd_ekew_node', namespace='',
-        package='aandd_ekew_driver', executable='aandd_ekew_node', output='screen',
+        package='aandd_ekew_driver_py', executable='aandd_ekew_node', output='screen',
         parameters=[{'port':port, 'baudrate':baudrate, 'connect_timeout':connect_timeout, 'rate':rate, 'use_fake':use_fake}],
     )
 

@@ -1,16 +1,17 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>aandd_ekew_driver</name>
-  <version>0.0.0</version>
-  <description>aandd ek/ew series driver package</description>
-  <maintainer email="koki.balian@gmail.com">koki-ogura</maintainer>
+  <name>aandd_ekew_driver_py</name>
+  <version>0.0.1</version>
+  <description>aandd ek/ew series driver python package</description>
+  <maintainer email="lin.jiaqing@techmagic.co.jp">Jiaqing Lin</maintainer>
   <license>Apache-2.0</license>
 
   <depend>rclpy</depend>
   <depend>action_msgs</depend>
   <depend>weight_scale_interfaces</depend>
-  <depend>weight_scale_driver</depend>
+
+  <exec_depend>python3-serial</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
