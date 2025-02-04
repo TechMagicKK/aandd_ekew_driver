@@ -68,15 +68,15 @@ ros2 param set /aandd_ekew_node rate 1.2
 
       The vendor id is `0584`, and product id is `b020`. **NOTE: This is example, the vendor id and product id depend on your device. It may be difference in your device.**
 
-2. change  value in `aandd_ekew_driver_py/99-weight-scale.rules` with your product id and product  id.
+2. change  value in `aandd_ekew_driver_py/rules/99-weight-scale.rules` with your product id and product  id.
 
    1. open rule file
       ```shell
-      cd ros_ws/src/aandd_ekew_driver_py
+      cd ros_ws/src/aandd_ekew_driver_py/rules
       vim 99-weight-scale.rules
       ```
 
-   2. change values for `idVendor` and `idProduct`.
+   2. change values for `idVendor` and `idProduct`. If your vendor id is `0584` and product id is `b020`, edit it as below.
       ```
       SUBSYSTEM=="tty", ATTRS{idVendor}=="0584", ATTRS{idProduct}=="b020", SYMLINK+="weightscale", MODE="0666"
       ```
